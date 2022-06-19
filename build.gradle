@@ -51,7 +51,7 @@ minecraft {
     srgExtra "PK: org/bukkit/craftbukkit org/bukkit/craftbukkit/v1_7_R4"
 }
 
-group = 'kmecpp'
+group = 'voidflame'
 
 ext.buildInfoCached = null;
 
