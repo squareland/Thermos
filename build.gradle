@@ -1,26 +1,16 @@
 import groovy.json.JsonSlurper
 import thermos.CreateChangelog
-import thermos.InstallBundle
 import thermos.VersionParser
 
 buildscript {
     repositories {
-        maven {
-            name 'prok'
-            url 'https://repo.prok.pw/'
-        }
-        maven {
-            name 'forge'
-            url 'http://files.minecraftforge.net/maven'
-        }
-        maven {
-            name 'sonatype'
-            url 'http://oss.sonatype.org/content/repositories/snapshots/'
-        }
-        maven {
-            name 'spigot'
-            url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-        }
+		maven {
+			name 'forge'	
+			url 'http://files.minecraftforge.net/maven'	
+		}
+		flatDir {
+			dirs 'libraries'
+		}
 
         mavenCentral()
     }
@@ -41,53 +31,36 @@ apply plugin: 'signing'
 
 repositories {
     clear()
-    maven {
-        name 'sonatype'
-        url 'http://oss.sonatype.org/content/repositories/snapshots/'
-    }
-    maven {
-        name 'prok'
-        url 'https://repo.prok.pw/'
-    }
-    maven {
-        name 'forge'
-        url 'http://files.minecraftforge.net/maven'
-    }
-    maven {
-        name 'minecraft'
-        url 'https://libraries.minecraft.net/'
-    }
-    maven {
-        name 'spigot'
-        url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-    }
+	maven {
+		name 'forge'	
+		url 'http://files.minecraftforge.net/maven'	
+	}
+	flatDir {
+		dirs 'libraries'
+	}
 
     mavenCentral()
 }
 
 minecraft {
     version = '1.7.10'
-    mcpVersion = '9.05'
+    mcpVersion = '9.08'
     mainClass = 'cpw.mods.fml.relauncher.ServerLaunchWrapper'
     tweakClass = 'cpw.mods.fml.common.launcher.FMLTweaker'
     installerVersion = "1.4"
     srgExtra "PK: org/bukkit/craftbukkit org/bukkit/craftbukkit/v1_7_R4"
 }
 
-group = 'cyberdynecc'
+group = 'kmecpp'
 
 ext.buildInfoCached = null;
 
 def buildInfo(String key) {
     if (!buildInfoCached) {
-        if (project.hasProperty('officialBuild')) {
-            buildInfoCached = new JsonSlurper().parse(new URL("http://i.yive.pw/thermos/version"))
-        } else {
-            buildInfoCached = [
-                    nextBuildNumber: 'UNOFFICIAL',
-                    version        : 'NONE'
-            ]
-        }
+		buildInfoCached = [
+				nextBuildNumber: 'UNOFFICIAL',
+				version        : 'NONE'
+		]
     }
     return key ? buildInfoCached[key] : buildInfoCached;
 }
@@ -122,7 +95,7 @@ version = "${mcVersion}-${forgeVersion}.${revision}"
 if (project.hasProperty('officialBuild')) println "Updated Thermos version: ${version}"
 
 launch4j {
-    jreMinVersion = '1.7.0'
+    jreMinVersion = '1.8.0'
 }
 
 configurations {
@@ -133,6 +106,14 @@ configurations {
 
 dependencies {
     bootstrap 'pw.prok:KBootstrap:0.2.+'
+    libraries 'pw.prok:KBootstrap:0.3.2@jar'
+    libraries 'pw.prok:Damask:0.1.2@jar'
+    libraries 'commons-cli:commons-cli:1.3@jar'
+    libraries 'org.slf4j:slf4j-simple:1.6.2@jar'
+    libraries 'org.eclipse.jetty:jetty-servlet:9.0.3.v20130506@jar'
+    libraries 'commons-io:commons-io:2.4@jar'
+    libraries 'net.sf.opencsv:opencsv:2.0@jar'
+    libraries 'com.beust:jcommander:1.30@jar'
     libraries 'net.minecraft:launchwrapper:1.12@jar'
     libraries 'org.ow2.asm:asm-all:5.0.3'
     libraries 'com.typesafe.akka:akka-actor_2.11:2.3.3'
@@ -146,7 +127,7 @@ dependencies {
     libraries 'org.scala-lang:scala-reflect:2.11.7'
     libraries 'org.scala-lang:scala-swing:2.11.0-M7'
     libraries 'org.scala-lang:scala-xml:2.11.0-M4'
-    libraries 'net.sf.jopt-simple:jopt-simple:4.7'
+    libraries 'net.sf.jopt-simple:jopt-simple:5.0.1'
     libraries 'lzma:lzma:0.0.1'
     libraries 'org.yaml:snakeyaml:1.9'
     libraries 'commons-lang:commons-lang:2.6'
@@ -177,24 +158,23 @@ def String repeat(String string, int times) {
     builder as String
 }
 
-def generateClasspath(boolean legacy = false) {
+def generateClasspath() {
     def classpath = ''
     configurations.libraries.resolvedConfiguration.resolvedArtifacts.collect { it.moduleVersion.id }.each {
         def jar = "${it.group.replace('.', '/')}/${it.name}/${it.version}/${it.name}-${it.version}.jar"
-        classpath += " ${legacy ? 'libraries/' : repeat('../', (group as String).split('\\.').length + 2)}${jar}"
+        classpath += " ${'libraries/'}${jar}"
     }
     return classpath.trim()
 }
 
-def generateManifest(boolean legacy = false) {
+def generateManifest() {
     [
             'Thermos-Git-Branch'    : gitInfo('branch'),
             'Thermos-Git-Hash'      : gitInfo('fullHash'),
             'Thermos-Group'         : project.group,
             'Thermos-Channel'       : project.name,
             'Thermos-Version'       : project.version,
-            'Thermos-Legacy'        : legacy,
-            'Implementation-Vendor' : 'CyberdyneCC',
+            'Implementation-Vendor' : 'kmecpp',
             'Implementation-Title'  : project.name,
             'Implementation-Version': project.version,
             'Specification-Vendor'  : 'Bukkit Team',
@@ -203,14 +183,14 @@ def generateManifest(boolean legacy = false) {
             'Forge-Version'         : VersionParser.parseForgeVersion(file('forge/src/main/java/net/minecraftforge/common/ForgeVersion.java'), file('src/main/resources/fmlversion.properties')),
             'TweakClass'            : 'cpw.mods.fml.common.launcher.FMLTweaker',
             'Main-Class'            : 'cpw.mods.fml.relauncher.ServerLaunchWrapper',
-            'Class-Path'            : generateClasspath(legacy)
+            'Class-Path'            : generateClasspath()
     ]
 }
 
 tasks.packageUniversal {
     classifier = 'server'
     setManifest {}
-    manifest.attributes(generateManifest(true))
+    manifest.attributes(generateManifest())
 }
 
 task jar(type: Jar, dependsOn: packageUniversal) {
@@ -240,15 +220,9 @@ task bundleStub(type: Jar) {
     ])
 }
 
-task installBundle(type: InstallBundle, dependsOn: jar) {
-    serverJar tasks.jar.archivePath
-    bootstrapClasspath configurations.bootstrap
-    bootstrapMain 'pw.prok.bootstrap.Main'
-}
-
-task packageBundle(type: Zip, dependsOn: installBundle) {
+task packageBundle(type: Zip) {
     classifier = 'bundle'
-    from fileTree(installBundle.installLocation)
+	from fileTree("libraries")
     from bundleStub
     rename bundleStub.archiveName, 'Thermos.jar'
 }
@@ -286,35 +260,6 @@ def getSignatureFiles = {
 }
 
 publishing {
-    repositories {
-        maven {
-            name 'ProK'
-            url 'https://repo.prok.pw/'
-            credentials {
-                username project.hasProperty('prokRepoUsername') ? prokRepoUsername : null
-                password project.hasProperty('prokRepoPassword') ? prokRepoPassword : null
-            }
-        }
-    }
-
-    publications {
-        maven(MavenPublication) {
-            getSignatureFiles().each { signature ->
-                artifact(signature.archive) {
-                    classifier = signature.classifier
-                    extension = signature.extension
-                }
-            }
-            artifact(getPomSignature()) {
-                classifier = null
-                extension = 'pom.asc'
-            }
-            artifact packageUniversal
-            artifact packageChangelog
-            artifact packageBundle
-            artifact jar
-        }
-    }
 }
 
 tasks.generateProjectCauldron << {
@@ -323,16 +268,11 @@ tasks.generateProjectCauldron << {
 repositories {
     clear()
     maven {
-        name 'prok'
-        url 'https://repo.prok.pw/'
+        name 'forge'	
+        url 'http://files.minecraftforge.net/maven'	
     }
-    maven {
-        name 'forge'
-        url 'http://files.minecraftforge.net/maven'
-    }
-    maven {
-        name 'minecraft'
-        url 'https://libraries.minecraft.net/'
+    flatDir {
+        dirs '../../libraries/'
     }
     mavenCentral()
 }
