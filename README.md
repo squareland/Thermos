@@ -1,4 +1,4 @@
-# Thermos
+# VoidFlame Thermos
 
 This patched version of Thermos was developed by kmecpp for VoidFlame Network (https://voidflame.com).
 
