@@ -162,7 +162,7 @@
          try {
              Method[] publicMethods = listener.getClass().getMethods();
 -            methods = new HashSet<Method>(publicMethods.length, Float.MAX_VALUE);
-+            methods = new HashSet<Method>(publicMethods.length);
++            methods = new HashSet<Method>(publicMethods.length); //VoidFlame
              for (Method method : publicMethods) {
                  methods.add(method);
              }

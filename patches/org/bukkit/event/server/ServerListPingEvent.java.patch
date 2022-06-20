@@ -17,7 +17,7 @@
      @Override
      public Iterator<Player> iterator() throws UnsupportedOperationException {
 -        throw new UnsupportedOperationException();
-+        return new ArrayList(Bukkit.getOnlinePlayers()).iterator();
++        return new ArrayList(Bukkit.getOnlinePlayers()).iterator(); //VoidFlame
      }
 +
  }
