@@ -1,10 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/world/World.java
 +++ ../src-work/minecraft/net/minecraft/world/World.java
-@@ -2,9 +2,11 @@
- 
- import cpw.mods.fml.relauncher.Side;
- import cpw.mods.fml.relauncher.SideOnly;
-+
+@@ -5,6 +6,7 @@
  import java.util.ArrayList;
  import java.util.Calendar;
  import java.util.Collection;
@@ -38,14 +34,6 @@
  import net.minecraft.pathfinding.PathEntity;
  import net.minecraft.pathfinding.PathFinder;
  import net.minecraft.profiler.Profiler;
-@@ -51,7 +60,6 @@
- import net.minecraft.world.storage.ISaveHandler;
- import net.minecraft.world.storage.MapStorage;
- import net.minecraft.world.storage.WorldInfo;
--
- import cpw.mods.fml.common.FMLLog;
- 
- import com.google.common.collect.ImmutableSetMultimap;
 @@ -67,9 +75,63 @@
  import net.minecraftforge.event.entity.EntityEvent;
  import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -465,7 +453,7 @@
          this.worldInfo = p_i45369_1_.loadWorldInfo();
  
          if (p_i45369_4_ != null)
-@@ -235,14 +561,32 @@
+@@ -235,15 +561,33 @@
          if (this.worldInfo == null)
          {
              this.worldInfo = new WorldInfo(p_i45369_3_, p_i45369_2_);
@@ -490,14 +478,16 @@
 +        this.provider.dimensionId = providerId;
 +        // Cauldron end
          this.chunkProvider = this.createChunkProvider();
+-
 +        // Thermos start
 +	try {
 +	if(this.chunkProvider != null)
 +            this.isModded = !this.chunkProvider.getClass().getPackage().getName().startsWith("net.minecraft"); } catch(Exception e) { this.isModded = false; }
 +        // Thermos end
-         
++        
          if (this instanceof WorldServer)
          {
+             this.perWorldStorage = new MapStorage(new WorldSpecificSaveHandler((WorldServer)this, p_i45369_1_));
 @@ -294,6 +638,7 @@
          this.calculateInitialSkylight();
          this.calculateInitialWeather();
@@ -753,10 +743,12 @@
                  return chunk.getSavedLightValue(p_72972_1_, p_72972_2_ & 15, p_72972_3_, p_72972_4_ & 15);
              }
          }
-@@ -1305,8 +1754,23 @@
+@@ -1304,9 +1753,24 @@
+         this.weatherEffects.add(p_72942_1_);
          return true;
      }
-     
+-
++    
 +    public List<EntityItem> itemStackSpawnQueue = new ArrayList<EntityItem>();
 +    public boolean captureItemDrops = false;
 +    
@@ -920,7 +912,7 @@
          this.onEntityRemoved(p_72973_1_);
      }
  
-@@ -1407,41 +1967,61 @@
+@@ -1407,42 +1967,62 @@
  
      public List getCollidingBoundingBoxes(Entity p_72945_1_, AxisAlignedBB p_72945_2_)
      {
@@ -992,11 +984,12 @@
          double d0 = 0.25D;
          List list = this.getEntitiesWithinAABBExcludingEntity(p_72945_1_, p_72945_2_.expand(d0, d0, d0));
 +        net.minecraftforge.cauldron.CauldronHooks.logEntitySize(this, p_72945_1_, list); // Cauldron add logging for entity collisions
-+
+ 
 +        this.collidingBoundingBoxes.ensureCapacity(list.size());
-         
++        
          for (int j2 = 0; j2 < list.size(); ++j2)
          {
+             AxisAlignedBB axisalignedbb1 = ((Entity)list.get(j2)).getBoundingBox();
 @@ -1797,11 +2377,22 @@
          Entity entity;
          CrashReport crashreport;
@@ -1096,8 +1089,7 @@
 +            this.field_147483_b.clear();
 +        }
 +        // CraftBukkit end
- 
--            if (!tileentity.isInvalid() && tileentity.hasWorldObj() && this.blockExists(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord))
++
 +        int tilesThisCycle = 0;
 +        for (tileLimiter.initTick(); tilesThisCycle < loadedTileEntityList.size() && (tilesThisCycle % 10 == 0 || tileLimiter.shouldContinue()); tileTickPosition++, tilesThisCycle++) {
 +            tileTickPosition = (tileTickPosition < loadedTileEntityList.size()) ? tileTickPosition : 0;
@@ -1112,7 +1104,8 @@
 +                continue;
 +            }
 +            // Spigot end
-+
+ 
+-            if (!tileentity.isInvalid() && tileentity.hasWorldObj() && this.blockExists(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord))
 +            if (tileentity.isInvalid()) {
 +                tilesThisCycle--;
 +                this.loadedTileEntityList.remove(tileTickPosition--);
