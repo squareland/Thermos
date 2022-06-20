@@ -591,7 +591,7 @@ public class CraftEventFactory {
         } else if (source == DamageSource.lava) {
             cause = DamageCause.LAVA;
         } else if (source == DamageSource.generic || cause == null) {
-            return new EntityDamageEvent(entity.getBukkitEntity(), DamageCause.CUSTOM, modifiers, modifierFunctions); // use custom
+            cause = DamageCause.CUSTOM;
         }
 
         return callEntityDamageEvent(null, entity, cause, modifiers, modifierFunctions);
