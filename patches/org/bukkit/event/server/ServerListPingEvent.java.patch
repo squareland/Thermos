@@ -1,0 +1,23 @@
+--- ../src-base/minecraft/org/bukkit/event/server/ServerListPingEvent.java
++++ ../src-work/minecraft/org/bukkit/event/server/ServerListPingEvent.java
+@@ -1,9 +1,11 @@
+ package org.bukkit.event.server;
+ 
+ import java.net.InetAddress;
++import java.util.ArrayList;
+ import java.util.Iterator;
+ 
+ import org.apache.commons.lang.Validate;
++import org.bukkit.Bukkit;
+ import org.bukkit.entity.Player;
+ import org.bukkit.event.HandlerList;
+ import org.bukkit.util.CachedServerIcon;
+@@ -137,6 +139,7 @@
+      */
+     @Override
+     public Iterator<Player> iterator() throws UnsupportedOperationException {
+-        throw new UnsupportedOperationException();
++        return new ArrayList(Bukkit.getOnlinePlayers()).iterator();
+     }
++
+ }
