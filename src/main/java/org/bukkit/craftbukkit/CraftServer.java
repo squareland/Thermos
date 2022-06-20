@@ -79,6 +79,7 @@ import org.bukkit.craftbukkit.util.Versioning;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerChatTabCompleteEvent;
+import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
@@ -1646,12 +1647,18 @@ public final class CraftServer implements Server {
             return ImmutableList.of();
         }
 
+        List<String> offers;
         Player player = ((net.minecraft.entity.player.EntityPlayerMP) sender).getBukkitEntity();
         if (message.startsWith("/")) {
-            return tabCompleteCommand(player, message);
+            offers = tabCompleteCommand(player, message);
         } else {
-            return tabCompleteChat(player, message);
+            offers = tabCompleteChat(player, message);
         }
+
+        TabCompleteEvent tabEvent = new TabCompleteEvent(player, message, offers);
+        getPluginManager().callEvent(tabEvent);
+
+        return tabEvent.isCancelled() ? Collections.EMPTY_LIST : tabEvent.getCompletions();
     }
 
     public List<String> tabCompleteCommand(Player player, String message) {

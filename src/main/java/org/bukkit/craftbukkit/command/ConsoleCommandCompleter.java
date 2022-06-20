@@ -1,11 +1,13 @@
 package org.bukkit.craftbukkit.command;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.util.Waitable;
+import org.bukkit.event.server.TabCompleteEvent;
 
 import jline.console.completer.Completer;
 
@@ -20,7 +22,12 @@ public class ConsoleCommandCompleter implements Completer {
         Waitable<List<String>> waitable = new Waitable<List<String>>() {
             @Override
             protected List<String> evaluate() {
-                return server.getCommandMap().tabComplete(server.getConsoleSender(), buffer);
+                List<String> offers = server.getCommandMap().tabComplete(server.getConsoleSender(), buffer);
+
+                TabCompleteEvent tabEvent = new TabCompleteEvent(server.getConsoleSender(), buffer, (offers == null) ? Collections.EMPTY_LIST : offers);
+                server.getPluginManager().callEvent(tabEvent);
+
+                return tabEvent.isCancelled() ? Collections.EMPTY_LIST : tabEvent.getCompletions();
             }
         };
         this.server.getServer().processQueue.add(waitable);
