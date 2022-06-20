@@ -24,7 +24,7 @@
      void write(DataOutput p_74734_1_) throws IOException
      {
          Iterator iterator = this.tagMap.keySet().iterator();
-@@ -336,15 +349,12 @@
+@@ -336,23 +349,24 @@
  
      public NBTBase copy()
      {
@@ -32,16 +32,30 @@
 -        Iterator iterator = this.tagMap.keySet().iterator();
 +        NBTTagCompound nbttagcompound = new NBTTagCompound(true);
 +        nbttagcompound.tagMap = new HashMap<String, NBTBase>((int)(this.tagMap.size()*1.35)+1); //compaction factor
-+        
-+        for(Map.Entry<String, NBTBase> s : this.tagMap.entrySet())
-+            nbttagcompound.setTag(s.getKey(), s.getValue().copy());
- 
+         
 -        while (iterator.hasNext())
 -        {
 -            String s = (String)iterator.next();
 -            nbttagcompound.setTag(s, ((NBTBase)this.tagMap.get(s)).copy());
 -        }
--
++        for(Map.Entry<String, NBTBase> s : this.tagMap.entrySet())
++            nbttagcompound.setTag(s.getKey(), s.getValue().copy());
+ 
          return nbttagcompound;
      }
  
+-    public boolean equals(Object p_equals_1_)
++    public boolean equals(Object other)
+     {
+-        if (super.equals(p_equals_1_))
++        if (other == this) {
++            return true;
++        }
++
++        if (super.equals(other))
+         {
+-            NBTTagCompound nbttagcompound = (NBTTagCompound)p_equals_1_;
++            NBTTagCompound nbttagcompound = (NBTTagCompound) other;
+             return this.tagMap.entrySet().equals(nbttagcompound.tagMap.entrySet());
+         }
+         else

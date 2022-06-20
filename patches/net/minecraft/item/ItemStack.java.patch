@@ -121,15 +121,15 @@
          p_77955_1_.setByte("Count", (byte)this.stackSize);
          p_77955_1_.setShort("Damage", (short)this.itemDamage);
  
-@@ -175,6 +215,8 @@
-         {
+@@ -176,6 +216,8 @@
              this.itemDamage = 0;
          }
-+        
+         
 +        sizeCheck(this);
- 
++
          if (p_77963_1_.hasKey("tag", 10))
          {
+             this.stackTagCompound = p_77963_1_.getCompoundTag("tag");
 @@ -184,11 +226,13 @@
  
      public int getMaxStackSize()
@@ -227,7 +227,26 @@
          ItemStack itemstack = new ItemStack(this.field_151002_e, this.stackSize, this.itemDamage);
  
          if (this.stackTagCompound != null)
-@@ -419,6 +499,7 @@
+@@ -346,9 +426,16 @@
+         return p_77989_0_ == null && p_77989_1_ == null ? true : (p_77989_0_ != null && p_77989_1_ != null ? p_77989_0_.isItemStackEqual(p_77989_1_) : false);
+     }
+ 
+-    private boolean isItemStackEqual(ItemStack p_77959_1_)
++    private boolean isItemStackEqual(ItemStack other)
+     {
+-        return this.stackSize != p_77959_1_.stackSize ? false : (this.field_151002_e != p_77959_1_.field_151002_e ? false : (this.itemDamage != p_77959_1_.itemDamage ? false : (this.stackTagCompound == null && p_77959_1_.stackTagCompound != null ? false : this.stackTagCompound == null || this.stackTagCompound.equals(p_77959_1_.stackTagCompound))));
++        if (other == this) {
++            return true;
++        }
++        return this.stackSize != other.stackSize ? false
++        		: (this.field_151002_e != other.field_151002_e ? false
++        				: (this.itemDamage != other.itemDamage ? false
++        						: (this.stackTagCompound == null && other.stackTagCompound != null ? false
++        								: this.stackTagCompound == null || this.stackTagCompound.equals(other.stackTagCompound))));
+     }
+ 
+     public boolean isItemEqual(ItemStack p_77969_1_)
+@@ -419,6 +506,7 @@
  
      public void setTagCompound(NBTTagCompound p_77982_1_)
      {
@@ -235,7 +254,7 @@
          this.stackTagCompound = p_77982_1_;
      }
  
-@@ -768,4 +849,12 @@
+@@ -768,4 +856,12 @@
  
          return ichatcomponent;
      }
