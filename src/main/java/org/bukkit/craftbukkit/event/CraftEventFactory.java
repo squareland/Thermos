@@ -273,6 +273,15 @@ public class CraftEventFactory {
         return event;
     }
 
+    public static EntitySpawnEvent callEntitySpawnEvent(Entity entity) {
+        CraftEntity bukkitEntity = entity.getBukkitEntity();
+        CraftServer craftServer = (CraftServer) bukkitEntity.getServer();
+
+        EntitySpawnEvent event = new EntitySpawnEvent(bukkitEntity);
+        craftServer.getPluginManager().callEvent(event);
+        return event;
+    }
+
     /**
      * EntityTameEvent
      */
