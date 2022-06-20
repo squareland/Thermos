@@ -114,11 +114,11 @@
              this.dimension = p_i1582_1_.provider.dimensionId;
 +            // Spigot start
 +            this.defaultActivationState = org.spigotmc.ActivationRange.initializeEntityActivationState(this, p_i1582_1_.getSpigotConfig()); // Cauldron
-         }
++        }
 +        else
 +        {
 +            this.defaultActivationState = false;
-+        }
+         }
  
 +        // Spigot end
          this.dataWatcher = new DataWatcher(this);
@@ -371,12 +371,12 @@
      protected void dealFireDamage(int p_70081_1_)
      {
          if (!this.isImmuneToFire)
-@@ -935,7 +1143,16 @@
+@@ -935,6 +1143,15 @@
              this.attackEntityFrom(DamageSource.inFire, (float)p_70081_1_);
          }
      }
 +    // Cauldron end
- 
++
 +    protected void dealFireDamage(float par1) // CraftBukkit signature change
 +    {
 +        if (!this.isImmuneToFire)
@@ -384,10 +384,9 @@
 +            this.attackEntityFrom(DamageSource.inFire, (float)par1);
 +        }
 +    }
-+
+ 
      public final boolean isImmuneToFire()
      {
-         return this.isImmuneToFire;
 @@ -1184,6 +1401,8 @@
  
      public void onCollideWithPlayer(EntityPlayer p_70100_1_) {}
@@ -579,7 +578,7 @@
                  this.setLocationAndAngles(this.ridingEntity.posX, this.ridingEntity.boundingBox.minY + (double)this.ridingEntity.height, this.ridingEntity.posZ, this.rotationYaw, this.rotationPitch);
                  this.ridingEntity.riddenByEntity = null;
              }
-@@ -1668,22 +2016,61 @@
+@@ -1668,20 +2016,59 @@
          }
          else
          {
@@ -623,8 +622,8 @@
 +
 +                    return;
 +                }
-             }
- 
++            }
++
 +            // CraftBukkit end
 +            // Spigot Start
 +            if (p_70078_1_.worldObj.chunkExists((int) p_70078_1_.posX >> 4, (int) p_70078_1_.posZ >> 4))
@@ -643,11 +642,9 @@
 +            if (this.ridingEntity != null)
 +            {
 +                this.ridingEntity.riddenByEntity = null;
-+            }
-+
+             }
+ 
              this.ridingEntity = p_70078_1_;
-             p_70078_1_.riddenByEntity = this;
-         }
 @@ -1860,12 +2247,59 @@
  
      public void onStruckByLightning(EntityLightningBolt p_70077_1_)
@@ -722,8 +719,7 @@
 +            // int j = this.dimension;
 +            // Cauldron start - Allow Forge hotloading on teleport
 +            WorldServer exitWorld = minecraftserver.worldServerForDimension(p_71027_1_);
- 
--            if (j == 1 && p_71027_1_ == 1)
++
 +            Location enter = this.getBukkitEntity().getLocation();
 +            Location exit = exitWorld != null ? minecraftserver.getConfigurationManager().calculateTarget(enter, minecraftserver.worldServerForDimension(p_71027_1_)) : null;
 +            boolean useTravelAgent = exitWorld != null && !(this.dimension == 1 && exitWorld.dimension == 1); // don't use agent for custom worlds or return from THE_END
@@ -734,7 +730,8 @@
 +            EntityPortalEvent event = new EntityPortalEvent(this.getBukkitEntity(), enter, exit, agent);
 +            event.useTravelAgent(useTravelAgent);
 +            event.getEntity().getServer().getPluginManager().callEvent(event);
-+
+ 
+-            if (j == 1 && p_71027_1_ == 1)
 +            if (event.isCancelled() || event.getTo() == null || !this.isEntityAlive())
              {
 -                worldserver1 = minecraftserver.worldServerForDimension(0);
@@ -757,6 +754,7 @@
 +            // CraftBukkit end
 +            this.dimension = i;
              this.worldObj.removeEntity(this);
+-            this.isDead = false;
 +            // Thermos silently remove the entity so it can be magically transported to another world :D    
 +            if (!(this instanceof EntityLivingBase) && this.addedToChunk && this.worldObj.chunkExists(this.chunkCoordX, this.chunkCoordZ))
 +            {
@@ -764,7 +762,7 @@
 +            	this.worldObj.loadedEntityList.remove(this);
 +            }
 +                
-             this.isDead = false;
++//            this.isDead = false; // VoidFlame - Donkey portal dupe fix https://github.com/PaperMC/Paper/blob/08aa6e5f49c9ceee3290bbe457998c0030d8ca7d/Spigot-Server-Patches/0213-Fix-a-duplicate-alive-entity-on-second-world.patch
              this.worldObj.theProfiler.startSection("reposition");
 -            minecraftserver.getConfigurationManager().transferEntityToWorld(this, j, worldserver, worldserver1);
 +            // CraftBukkit start - Ensure chunks are loaded in case TravelAgent is not used which would initially cause chunks to load during find/create
