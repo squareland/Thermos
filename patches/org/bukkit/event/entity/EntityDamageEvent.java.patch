@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/org/bukkit/event/entity/EntityDamageEvent.java
 +++ ../src-work/minecraft/org/bukkit/event/entity/EntityDamageEvent.java
-@@ -10,6 +10,8 @@
+@@ -10,36 +10,63 @@
  import org.bukkit.event.HandlerList;
  import org.bukkit.util.NumberConversions;
  
@@ -8,9 +8,13 @@
 +import com.google.common.base.Functions;
  import com.google.common.collect.ImmutableMap;
  
++import net.minecraft.util.DamageSource;
++
  /**
-@@ -18,7 +20,9 @@
+  * Stores data for damage events
+  */
  public class EntityDamageEvent extends EntityEvent implements Cancellable {
++
      private static final HandlerList handlers = new HandlerList();
      private static final DamageModifier[] MODIFIERS = DamageModifier.values();
 +    private static final Function<? super Double, Double> ZERO = Functions.constant(-0.0);
@@ -19,16 +23,38 @@
      private final Map<DamageModifier, Double> originals;
      private boolean cancelled;
      private final DamageCause cause;
-@@ -30,16 +34,20 @@
++    private final DamageSource source; //VoidFlame | TODO: Ideally all damage events would include a source but we'll settle for just what we provide in CraftEventFactory for now
  
      @Deprecated
-     public EntityDamageEvent(final Entity damagee, final DamageCause cause, final double damage) {
+-    public EntityDamageEvent(final Entity damagee, final DamageCause cause, final int damage) {
+-        this(damagee, cause, (double) damage);
++    public EntityDamageEvent(Entity damagee, DamageCause cause, int damage) {
++      this((DamageSource)null, damagee, cause, damage);
+     }
+ 
+     @Deprecated
+-    public EntityDamageEvent(final Entity damagee, final DamageCause cause, final double damage) {
 -        this(damagee, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, damage)));
-+        this(damagee, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, damage)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, ZERO)));
++    public EntityDamageEvent(Entity damagee, DamageCause cause, double damage) {
++      this((DamageSource)null, damagee, cause, damage);
      }
  
 -    public EntityDamageEvent(final Entity damagee, final DamageCause cause, final Map<DamageModifier, Double> modifiers) {
-+    public EntityDamageEvent(final Entity damagee, final DamageCause cause, final Map<DamageModifier, Double> modifiers, final Map<DamageModifier, ? extends Function<? super Double, Double>> modifierFunctions) {
++    public EntityDamageEvent(Entity damagee, DamageCause cause, Map<DamageModifier, Double> modifiers, Map<DamageModifier, ? extends Function<? super Double, Double>> modifierFunctions) {
++      this(null, damagee, cause, modifiers, modifierFunctions);
++    }
++
++    @Deprecated
++    public EntityDamageEvent(DamageSource source, final Entity damagee, final DamageCause cause, final int damage) {
++        this(source, damagee, cause, (double) damage);
++    }
++
++    @Deprecated
++    public EntityDamageEvent(DamageSource source, final Entity damagee, final DamageCause cause, final double damage) {
++        this(source, damagee, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, damage)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, ZERO)));
++    }
++
++    public EntityDamageEvent(DamageSource source, final Entity damagee, final DamageCause cause, final Map<DamageModifier, Double> modifiers, final Map<DamageModifier, ? extends Function<? super Double, Double>> modifierFunctions) {
          super(damagee);
          Validate.isTrue(modifiers.containsKey(DamageModifier.BASE), "BASE DamageModifier missing");
          Validate.isTrue(!modifiers.containsKey(null), "Cannot have null DamageModifier");
@@ -39,10 +65,11 @@
          this.cause = cause;
          this.modifiers = modifiers;
 +        this.modifierFunctions = modifierFunctions;
++        this.source = source;
      }
  
      public boolean isCancelled() {
-@@ -149,11 +157,39 @@
+@@ -149,11 +176,39 @@
      }
  
      /**
@@ -83,3 +110,14 @@
          setDamage(DamageModifier.BASE, damage);
      }
  
+@@ -167,6 +222,10 @@
+         setDamage(damage);
+     }
+ 
++	public Object getSource() {
++		return source;
++	}
++
+     /**
+      * Gets the cause of the damage.
+      *

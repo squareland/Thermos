@@ -436,7 +436,7 @@ public class CraftEventFactory {
             if (damager == null) {
                 event = new EntityDamageByBlockEvent(null, entity.getBukkitEntity(), DamageCause.BLOCK_EXPLOSION, modifiers, modifierFunctions);
             } else if (entity instanceof EntityDragon && ((EntityDragon) entity).healingEnderCrystal == damager) {
-                event = new EntityDamageEvent(entity.getBukkitEntity(), DamageCause.ENTITY_EXPLOSION, modifiers, modifierFunctions);
+                event = new EntityDamageEvent(source, entity.getBukkitEntity(), DamageCause.ENTITY_EXPLOSION, modifiers, modifierFunctions);
             } else {
                 if (damager instanceof org.bukkit.entity.TNTPrimed) {
                     damageCause = DamageCause.BLOCK_EXPLOSION;
@@ -475,7 +475,7 @@ public class CraftEventFactory {
                 cause = DamageCause.THORNS;
             }
 
-            return callEntityDamageEvent(damager, entity, cause, modifiers, modifierFunctions);
+            return callEntityDamageEvent(source, damager, entity, cause, modifiers, modifierFunctions);
         } else if (source == DamageSource.outOfWorld) {
             EntityDamageEvent event = callEvent(new EntityDamageByBlockEvent(null, entity.getBukkitEntity(), DamageCause.VOID, modifiers, modifierFunctions));
             if (!event.isCancelled()) {
@@ -591,20 +591,20 @@ public class CraftEventFactory {
         } else if (source == DamageSource.lava) {
             cause = DamageCause.LAVA;
         } else if (source == DamageSource.generic || cause == null) {
-            cause = DamageCause.CUSTOM;
+            cause = DamageCause.CUSTOM; //VoidFlame
         }
 
-        return callEntityDamageEvent(null, entity, cause, modifiers, modifierFunctions);
+        return callEntityDamageEvent(source, null, entity, cause, modifiers, modifierFunctions); //VoidFlame
         //throw new RuntimeException("Unhandled entity damage");
         // Cauldron end
     }
 
-    private static EntityDamageEvent callEntityDamageEvent(Entity damager, Entity damagee, DamageCause cause, Map<DamageModifier, Double> modifiers, Map<DamageModifier, Function<? super Double, Double>> modifierFunctions) {
+    private static EntityDamageEvent callEntityDamageEvent(DamageSource source, Entity damager, Entity damagee, DamageCause cause, Map<DamageModifier, Double> modifiers, Map<DamageModifier, Function<? super Double, Double>> modifierFunctions) {
         EntityDamageEvent event;
         if (damager != null) {
             event = new EntityDamageByEntityEvent(damager.getBukkitEntity(), damagee.getBukkitEntity(), cause, modifiers, modifierFunctions);
         } else {
-            event = new EntityDamageEvent(damagee.getBukkitEntity(), cause, modifiers, modifierFunctions);
+            event = new EntityDamageEvent(source, damagee.getBukkitEntity(), cause, modifiers, modifierFunctions); //VoidFlame
         }
 
         callEvent(event);
