@@ -227,7 +227,7 @@
          ItemStack itemstack = new ItemStack(this.field_151002_e, this.stackSize, this.itemDamage);
  
          if (this.stackTagCompound != null)
-@@ -346,9 +426,16 @@
+@@ -346,14 +426,21 @@
          return p_77989_0_ == null && p_77989_1_ == null ? true : (p_77989_0_ != null && p_77989_1_ != null ? p_77989_0_.isItemStackEqual(p_77989_1_) : false);
      }
  
@@ -236,7 +236,7 @@
      {
 -        return this.stackSize != p_77959_1_.stackSize ? false : (this.field_151002_e != p_77959_1_.field_151002_e ? false : (this.itemDamage != p_77959_1_.itemDamage ? false : (this.stackTagCompound == null && p_77959_1_.stackTagCompound != null ? false : this.stackTagCompound == null || this.stackTagCompound.equals(p_77959_1_.stackTagCompound))));
 +        if (other == this) {
-+            return true;
++            return true; //VoidFlame
 +        }
 +        return this.stackSize != other.stackSize ? false
 +        		: (this.field_151002_e != other.field_151002_e ? false
@@ -245,7 +245,14 @@
 +        								: this.stackTagCompound == null || this.stackTagCompound.equals(other.stackTagCompound))));
      }
  
-     public boolean isItemEqual(ItemStack p_77969_1_)
+-    public boolean isItemEqual(ItemStack p_77969_1_)
++    public boolean isItemEqual(ItemStack other)
+     {
+-        return this.field_151002_e == p_77969_1_.field_151002_e && this.itemDamage == p_77969_1_.itemDamage;
++        return isItemStackEqual(other); // VoidFlame - Fixes many dupes (Original implementation doesn't check NBT)
+     }
+ 
+     public String getUnlocalizedName()
 @@ -419,6 +506,7 @@
  
      public void setTagCompound(NBTTagCompound p_77982_1_)

@@ -49,7 +49,7 @@
      {
 -        if (super.equals(p_equals_1_))
 +        if (other == this) {
-+            return true;
++            return true; //VoidFlame
 +        }
 +
 +        if (super.equals(other))
