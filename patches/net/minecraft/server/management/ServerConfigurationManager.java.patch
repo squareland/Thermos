@@ -175,6 +175,14 @@
          NBTTagCompound nbttagcompound1;
  
          if (p_72380_1_.getCommandSenderName().equals(this.mcServer.getServerOwner()) && nbttagcompound != null)
+@@ -279,6 +343,7 @@
+             return ((SaveHandler)this.playerNBTManagerObj).getPlayerNBT(player);
+         }
+     }
++    
+     protected void writePlayerData(EntityPlayerMP p_72391_1_)
+     {
+         if (p_72391_1_.playerNetServerHandler == null) return;
 @@ -294,18 +359,60 @@
  
      public void playerLoggedIn(EntityPlayerMP p_72377_1_)
@@ -221,7 +229,7 @@
 +            {
 +                entityplayermp1.playerNetServerHandler.sendPacket(packet);
 +            }
-+        }
+         }
 +        // CraftBukkit end
 +        for (int i = 0; i < this.playerEntityList.size(); ++i)
 +        {
@@ -235,7 +243,7 @@
 +
 +            // .name -> .listName
 +            p_72377_1_.playerNetServerHandler.sendPacket(new S38PacketPlayerListItem(entityplayermp1.listName, true, entityplayermp1.ping));
-         }
++        }
 +        // CraftBukkit end
      }
  
@@ -384,7 +392,7 @@
 +            {
 +                event.disallow(PlayerLoginEvent.Result.KICK_FULL, org.spigotmc.SpigotConfig.serverFullMessage); // Spigot
 +            }
-         }
++        }
 +
 +        this.cserver.getPluginManager().callEvent(event);
 +
@@ -392,7 +400,7 @@
 +        {
 +            loginlistener.func_147322_a(event.getKickMessage());
 +            return null;
-+        }
+         }
 +        
 +        return entity;
      }
@@ -461,6 +469,7 @@
 -        entityplayermp1.setEntityId(p_72368_1_.getEntityId());
 -        WorldServer worldserver = this.mcServer.worldServerForDimension(p_72368_1_.dimension);
 -        this.func_72381_a(entityplayermp1, p_72368_1_, worldserver);
+-        ChunkCoordinates chunkcoordinates1;
 +        return new EntityPlayerMP(this.mcServer, this.mcServer.worldServerForDimension(0), p_148545_1_, (ItemInWorldManager)object);
 +       // */
 +        return player;
@@ -479,16 +488,19 @@
 +        // Phase 1 - check if the player is allowed to respawn in same dimension
 +        World world = mcServer.worldServerForDimension(targetDimension);
 +        org.bukkit.World fromWorld = par1EntityPlayerMP.getBukkitEntity().getWorld();
-+
+ 
+-        if (chunkcoordinates != null)
 +        if (world == null)
-+        {
+         {
+-            chunkcoordinates1 = EntityPlayer.verifyRespawnCoordinates(this.mcServer.worldServerForDimension(p_72368_1_.dimension), chunkcoordinates, flag1);
 +            targetDimension = 0;
 +        }
 +        else if (location == null && !world.provider.canRespawnHere()) // ignore plugins
 +        {
 +            targetDimension = world.provider.getRespawnDimension(par1EntityPlayerMP);
 +        }
-+
+ 
+-            if (chunkcoordinates1 != null)
 +        
 +        // Phase 2 - handle return from End
 +        
@@ -501,19 +513,24 @@
 +            exit = ((org.bukkit.craftbukkit.entity.CraftPlayer) par1EntityPlayerMP.getBukkitEntity()).getBedSpawnLocation();
 +
 +            if (exit == null || ((CraftWorld) exit.getWorld()).getHandle().dimension != 0)
-+            {
+             {
+-                entityplayermp1.setLocationAndAngles((double)((float)chunkcoordinates1.posX + 0.5F), (double)((float)chunkcoordinates1.posY + 0.1F), (double)((float)chunkcoordinates1.posZ + 0.5F), 0.0F, 0.0F);
+-                entityplayermp1.setSpawnChunk(chunkcoordinates, flag1);
 +                exit = exitWorld.getWorld().getSpawnLocation();
-+            }
+             }
+-            else
 +            PlayerPortalEvent event = new PlayerPortalEvent(par1EntityPlayerMP.getBukkitEntity(), enter, exit, org.bukkit.craftbukkit.CraftTravelAgent.DEFAULT,
 +                    TeleportCause.END_PORTAL);
 +            event.useTravelAgent(false);
 +            Bukkit.getServer().getPluginManager().callEvent(event);
 +            if (event.isCancelled() || event.getTo() == null)
-+            {
+             {
+-                entityplayermp1.playerNetServerHandler.sendPacket(new S2BPacketChangeGameState(0, 0.0F));
 +                return null;
-+            }
-+        }
-+
+             }
+         }
+ 
+-        worldserver.theChunkProviderServer.loadChunk((int)entityplayermp1.posX >> 4, (int)entityplayermp1.posZ >> 4);
 +        // Phase 3 - remove current player from current dimension
 +        par1EntityPlayerMP.getServerForPlayer().getEntityTracker().removePlayerFromTrackers(par1EntityPlayerMP);
 +        par1EntityPlayerMP.getServerForPlayer().getEntityTracker().removeEntityFromAllTrackingPlayers(par1EntityPlayerMP); // CraftBukkit
@@ -565,21 +582,19 @@
 +        func_72381_a(entityplayermp1, par1EntityPlayerMP, mcServer.worldServerForDimension(targetDimension));
 +        */
 +        
-         ChunkCoordinates chunkcoordinates1;
++        ChunkCoordinates chunkcoordinates1;
 +        boolean isBedSpawn = false;
-         
--        if (chunkcoordinates != null)
++        
 +        org.bukkit.World toWorld = entityplayermp1.getBukkitEntity().getWorld();
-+
+ 
+-        while (!worldserver.getCollidingBoundingBoxes(entityplayermp1, entityplayermp1.boundingBox).isEmpty())
 +        if (location == null) // use bed logic *only* if player respawns according to Bukkit (player death)
-         {
--            chunkcoordinates1 = EntityPlayer.verifyRespawnCoordinates(this.mcServer.worldServerForDimension(p_72368_1_.dimension), chunkcoordinates, flag1);
++        {
 +            if (bedSpawnChunkCoords != null) // if player has a bed (Forge calls chunkcoordinates)
 +            {
 +                chunkcoordinates1 = EntityPlayer.verifyRespawnCoordinates(this.mcServer.worldServerForDimension(par1EntityPlayerMP.dimension),
 +                        bedSpawnChunkCoords, spawnForced);
- 
--            if (chunkcoordinates1 != null)
++
 +                if (chunkcoordinates1 != null)
 +                {
 +                    isBedSpawn = true; // It's a real bed!
@@ -599,12 +614,9 @@
 +            }
 +
 +            if (location == null) // Nullness check
-             {
--                entityplayermp1.setLocationAndAngles((double)((float)chunkcoordinates1.posX + 0.5F), (double)((float)chunkcoordinates1.posY + 0.1F), (double)((float)chunkcoordinates1.posZ + 0.5F), 0.0F, 0.0F);
--                entityplayermp1.setSpawnChunk(chunkcoordinates, flag1);
++            {
 +                location = new Location(toWorld, toWorld.getSpawnLocation().getX(), toWorld.getSpawnLocation().getY(), toWorld.getSpawnLocation().getZ()); // use the world spawnpoint as default location
-             }
--            else
++            }
 +            
 +            //Send Bukkit Respawn event
 +            Player respawnPlayer = this.cserver.getPlayer(entityplayermp1);
@@ -616,27 +628,24 @@
 +            // Spigot End
 +
 +            if (!spawnForced) // mods override plugins
-             {
--                entityplayermp1.playerNetServerHandler.sendPacket(new S2BPacketChangeGameState(0, 0.0F));
++            {
 +                location = respawnEvent.getRespawnLocation();
-             }
++            }
 +            par1EntityPlayerMP.reset();
 +        }
 +        else
 +        // plugin respawns 'em elsewhere
 +        {
 +            location.setWorld(this.mcServer.worldServerForDimension(targetDimension).getWorld());
-         }
- 
--        worldserver.theChunkProviderServer.loadChunk((int)entityplayermp1.posX >> 4, (int)entityplayermp1.posZ >> 4);
++        }
++
 +        WorldServer targetWorld = ((CraftWorld) location.getWorld()).getHandle();
 +        this.func_72381_a(entityplayermp1, p_72368_1_, targetWorld);  //Fix up ItemWorldInManager 
 +        //We've decided where the player should go, now let's give 'em a location
 +        entityplayermp1.setPositionAndRotation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
 +        // /\ sets both player position and rotation...like it says
 +        // CraftBukkit end
-         
--        while (!worldserver.getCollidingBoundingBoxes(entityplayermp1, entityplayermp1.boundingBox).isEmpty())
++        
 +        //Align with Forge Line 468
 +        targetWorld.theChunkProviderServer.loadChunk((int) entityplayermp1.posX >> 4, (int) entityplayermp1.posZ >> 4);
 +
@@ -863,10 +872,11 @@
 +            par1EntityPlayerMP.playerNetServerHandler.sendPacket(new S1DPacketEntityEffect(par1EntityPlayerMP.getEntityId(), potioneffect));
          }
 -        FMLCommonHandler.instance().firePlayerChangedDimensionEvent(p_72356_1_, j, p_72356_2_);
-+
+-    }
+ 
 +        FMLCommonHandler.instance().firePlayerChangedDimensionEvent(par1EntityPlayerMP, fromWorld.dimension, targetDimension);
-     }
-     
++    }
++    
      public void transferEntityToWorld(Entity p_82448_1_, int p_82448_2_, WorldServer p_82448_3_, WorldServer p_82448_4_)
      {
 -        transferEntityToWorld(p_82448_1_, p_82448_2_, p_82448_3_, p_82448_4_, p_82448_4_.getDefaultTeleporter());
