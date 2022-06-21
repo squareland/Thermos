@@ -176,7 +176,7 @@
          p_70014_1_.setShort("DeathTime", (short)this.deathTime);
          p_70014_1_.setShort("AttackTime", (short)this.attackTime);
          p_70014_1_.setFloat("AbsorptionAmount", this.getAbsorptionAmount());
-+        p_70014_1_.setBoolean("DisableAI", disableAI);
++        p_70014_1_.setBoolean("DisableAI", disableAI); //VoidFlame
 +
          ItemStack[] aitemstack = this.getLastActiveItems();
          int i = aitemstack.length;
