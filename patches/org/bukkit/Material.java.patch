@@ -40,9 +40,9 @@
 +    private static boolean isSetup;
 +    private boolean isForgeBlock = false;
 +    // Cauldron end
-+
-+    private boolean isForge; //VoidFlame
  
++    private boolean isForge; //VoidFlame
++
      private Material(final int id) {
          this(id, 64);
      }
@@ -69,7 +69,7 @@
      /**
       * Gets the item ID or block ID of this Material
       *
-@@ -526,9 +565,16 @@
+@@ -526,10 +565,17 @@
       * @return true if this material is a block
       */
      public boolean isBlock() {
@@ -77,16 +77,17 @@
 +        return id < 256 || isForgeBlock; // Cauldron
      }
  
-+    /**
+     /**
 +     * Checks if the material is a forge block
 +     *
 +     * @return true if this material is a forge block
 +     */
 +    public boolean isForgeBlock() { return isForgeBlock; }
 +
-     /**
++    /**
       * Checks if this Material is edible.
       *
+      * @return true if this Material is edible.
 @@ -615,16 +661,202 @@
          } catch (NumberFormatException ex) {}
  

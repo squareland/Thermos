@@ -1,6 +1,10 @@
 --- ../src-base/minecraft/net/minecraft/world/World.java
 +++ ../src-work/minecraft/net/minecraft/world/World.java
-@@ -5,6 +6,7 @@
+@@ -2,9 +2,11 @@
+ 
+ import cpw.mods.fml.relauncher.Side;
+ import cpw.mods.fml.relauncher.SideOnly;
++
  import java.util.ArrayList;
  import java.util.Calendar;
  import java.util.Collection;
@@ -34,6 +38,14 @@
  import net.minecraft.pathfinding.PathEntity;
  import net.minecraft.pathfinding.PathFinder;
  import net.minecraft.profiler.Profiler;
+@@ -51,7 +60,6 @@
+ import net.minecraft.world.storage.ISaveHandler;
+ import net.minecraft.world.storage.MapStorage;
+ import net.minecraft.world.storage.WorldInfo;
+-
+ import cpw.mods.fml.common.FMLLog;
+ 
+ import com.google.common.collect.ImmutableSetMultimap;
 @@ -67,9 +75,63 @@
  import net.minecraftforge.event.entity.EntityEvent;
  import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -527,27 +539,6 @@
 -            p_72904_3_ >>= 4;
 -            p_72904_4_ >>= 4;
 -            p_72904_6_ >>= 4;
--
--            for (int k1 = p_72904_1_; k1 <= p_72904_4_; ++k1)
--            {
--                for (int l1 = p_72904_3_; l1 <= p_72904_6_; ++l1)
--                {
--                    if (!this.chunkExists(k1, l1))
--                    {
--                        return false;
--                    }
--                }
--            }
--
--            return true;
--        }
--        else
--        {
--            return false;
--        }
--    }
--
--    protected boolean chunkExists(int p_72916_1_, int p_72916_2_)
 +	public boolean checkChunksExist(int p_72904_1_, int p_72904_2_, int p_72904_3_, int p_72904_4_, int p_72904_5_, int p_72904_6_)
 +	{
 +		if (p_72904_5_ >= 0 && p_72904_2_ < 256)
@@ -598,7 +589,27 @@
 +			return false;
 +		}
 +	}
-+
+ 
+-            for (int k1 = p_72904_1_; k1 <= p_72904_4_; ++k1)
+-            {
+-                for (int l1 = p_72904_3_; l1 <= p_72904_6_; ++l1)
+-                {
+-                    if (!this.chunkExists(k1, l1))
+-                    {
+-                        return false;
+-                    }
+-                }
+-            }
+-
+-            return true;
+-        }
+-        else
+-        {
+-            return false;
+-        }
+-    }
+-
+-    protected boolean chunkExists(int p_72916_1_, int p_72916_2_)
 +    public boolean chunkExists(int p_72916_1_, int p_72916_2_) // Cauldron - protected -> public for repackaging
      {
          return this.chunkProvider.chunkExists(p_72916_1_, p_72916_2_);
@@ -946,10 +957,6 @@
 +                }
  
 -                        if (k1 >= -30000000 && k1 < 30000000 && l1 >= -30000000 && l1 < 30000000)
--                        {
--                            block = this.getBlock(k1, i2, l1);
--                        }
--                        else
 +                int cz = chunkz << 4;
 +                Chunk chunk = this.getChunkFromChunkCoords(chunkx, chunkz);
 +                // Compute ranges within chunk
@@ -965,6 +972,10 @@
 +                    {
 +                        for (int y = ystart; y < l; y++)
                          {
+-                            block = this.getBlock(k1, i2, l1);
+-                        }
+-                        else
+-                        {
 -                            block = Blocks.stone;
 -                        }
 +                            Block block = chunk.getBlock(x - cx, y, z - cz);
@@ -1089,7 +1100,8 @@
 +            this.field_147483_b.clear();
 +        }
 +        // CraftBukkit end
-+
+ 
+-            if (!tileentity.isInvalid() && tileentity.hasWorldObj() && this.blockExists(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord))
 +        int tilesThisCycle = 0;
 +        for (tileLimiter.initTick(); tilesThisCycle < loadedTileEntityList.size() && (tilesThisCycle % 10 == 0 || tileLimiter.shouldContinue()); tileTickPosition++, tilesThisCycle++) {
 +            tileTickPosition = (tileTickPosition < loadedTileEntityList.size()) ? tileTickPosition : 0;
@@ -1097,15 +1109,14 @@
 +
 +            // Spigot start
 +            if (tileentity == null)
-+            {
+             {
 +                getServer().getLogger().severe("Cauldron has detected a null entity and has removed it, preventing a crash");
 +                tilesThisCycle--;
 +                this.loadedTileEntityList.remove(tileTickPosition--);
 +                continue;
 +            }
 +            // Spigot end
- 
--            if (!tileentity.isInvalid() && tileentity.hasWorldObj() && this.blockExists(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord))
++
 +            if (tileentity.isInvalid()) {
 +                tilesThisCycle--;
 +                this.loadedTileEntityList.remove(tileTickPosition--);
@@ -1117,7 +1128,7 @@
 +            }
 +
 +            if (tileentity.hasWorldObj() && CauldronHooks.canTileEntityTick(tileentity, this) && this.blockExists(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord))
-             {
++            {
                  try
                  {
 +                    tileentity.tickTimer.startTiming(); // Spigot
@@ -1399,8 +1410,6 @@
 -            j = MathHelper.floor_double(entityplayer.posX / 16.0D);
 -            k = MathHelper.floor_double(entityplayer.posZ / 16.0D);
 -            l = this.func_152379_p();
--
--            for (int i1 = -l; i1 <= l; ++i1)
 +            int chunkX = MathHelper.floor_double(entityplayer.posX / 16.0D);
 +            int chunkZ = MathHelper.floor_double(entityplayer.posZ / 16.0D);
 +            // Spigot start - Always update the chunk the player is on
@@ -1408,7 +1417,8 @@
 +            int existingPlayers = Math.max(0, activeChunkSet_CB.get(key)); //filter out -1's
 +            activeChunkSet_CB.put(key, (short) (existingPlayers + 1));
 +            activeChunkSet.add(new ChunkCoordIntPair(chunkX, chunkZ)); // Cauldron - vanilla compatibility
-+
+ 
+-            for (int i1 = -l; i1 <= l; ++i1)
 +            // Check and see if we update the chunks surrounding the player this tick
 +            for (int chunk = 0; chunk < chunksPerPlayer; chunk++)
              {
@@ -1503,7 +1513,7 @@
 -            if ((!(entity instanceof EntityLiving) || !((EntityLiving)entity).isNoDespawnRequired()) && p_72907_1_.isAssignableFrom(entity.getClass()))
 +            // CraftBukkit start - Split out persistent check, don't apply it to special persistent mobs
 +            if (entity instanceof EntityLiving)
-+            {
+             {
 +                EntityLiving entityliving = (EntityLiving) entity;
 +
 +                if (entityliving.canDespawn_CB() && entityliving.isNoDespawnRequired())
@@ -1513,7 +1523,7 @@
 +            }
 +
 +            if (p_72907_1_.isAssignableFrom(entity.getClass()))
-             {
++            {
 +                // if ((!(entity instanceof EntityLiving) || !((EntityLiving)entity).isNoDespawnRequired()) && p_72907_1_.isAssignableFrom(entity.getClass()))
 +                // CraftBukkit end
                  ++i;

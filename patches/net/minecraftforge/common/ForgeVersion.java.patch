@@ -18,9 +18,3 @@
                      InputStream con = url.openStream();
                      String data = new String(ByteStreams.toByteArray(con));
                      con.close();
-@@ -145,4 +145,4 @@
-             }
-         }.start();
-     }
--}
-+}

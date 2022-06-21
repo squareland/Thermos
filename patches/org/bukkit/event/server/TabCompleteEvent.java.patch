@@ -1,4 +1,4 @@
---- /dev/null
+--- ../src-base/minecraft/org/bukkit/event/server/TabCompleteEvent.java
 +++ ../src-work/minecraft/org/bukkit/event/server/TabCompleteEvent.java
 @@ -0,0 +1,91 @@
 +package org.bukkit.event.server;
