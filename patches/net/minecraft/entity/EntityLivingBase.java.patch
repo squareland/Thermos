@@ -172,16 +172,18 @@
              this.setDead();
  
              for (i = 0; i < 20; ++i)
-@@ -416,6 +470,8 @@
+@@ -416,6 +470,10 @@
          p_70014_1_.setShort("DeathTime", (short)this.deathTime);
          p_70014_1_.setShort("AttackTime", (short)this.attackTime);
          p_70014_1_.setFloat("AbsorptionAmount", this.getAbsorptionAmount());
-+        p_70014_1_.setBoolean("DisableAI", disableAI); //VoidFlame
++        if (!(this instanceof EntityPlayer)) {
++        	p_70014_1_.setBoolean("DisableAI", disableAI); //VoidFlame
++        }
 +
          ItemStack[] aitemstack = this.getLastActiveItems();
          int i = aitemstack.length;
          int j;
-@@ -463,6 +519,7 @@
+@@ -463,6 +521,7 @@
      public void readEntityFromNBT(NBTTagCompound p_70037_1_)
      {
          this.setAbsorptionAmount(p_70037_1_.getFloat("AbsorptionAmount"));
@@ -189,7 +191,7 @@
  
          if (p_70037_1_.hasKey("Attributes", 9) && this.worldObj != null && !this.worldObj.isRemote)
          {
-@@ -485,6 +542,22 @@
+@@ -485,6 +544,22 @@
              }
          }
  
@@ -212,7 +214,7 @@
          if (p_70037_1_.hasKey("HealF", 99))
          {
              this.setHealth(p_70037_1_.getFloat("HealF"));
-@@ -614,12 +687,14 @@
+@@ -614,12 +689,14 @@
  
      public boolean isPotionActive(int p_82165_1_)
      {
@@ -229,7 +231,7 @@
      }
  
      public PotionEffect getActivePotionEffect(Potion p_70660_1_)
-@@ -710,25 +785,66 @@
+@@ -710,25 +787,66 @@
          }
      }
  
@@ -297,7 +299,7 @@
          this.dataWatcher.updateObject(6, Float.valueOf(MathHelper.clamp_float(p_70606_1_, 0.0F, this.getMaxHealth())));
      }
  
-@@ -757,11 +873,12 @@
+@@ -757,11 +875,12 @@
              }
              else
              {
@@ -312,7 +314,7 @@
  
                  this.limbSwingAmount = 1.5F;
                  boolean flag = true;
-@@ -773,16 +890,27 @@
+@@ -773,16 +892,27 @@
                          return false;
                      }
  
@@ -343,7 +345,7 @@
                      this.hurtTime = this.maxHurtTime = 10;
                  }
  
-@@ -938,6 +1066,22 @@
+@@ -938,6 +1068,22 @@
  
              if (!ForgeHooks.onLivingDrops(this, p_70645_1_, capturedDrops, i, recentlyHit > 0, j))
              {
@@ -366,7 +368,7 @@
                  for (EntityItem item : capturedDrops)
                  {
                      worldObj.spawnEntityInWorld(item);
-@@ -1010,8 +1154,17 @@
+@@ -1010,8 +1156,17 @@
  
          if (i > 0)
          {
@@ -385,7 +387,7 @@
              int j = MathHelper.floor_double(this.posX);
              int k = MathHelper.floor_double(this.posY - 0.20000000298023224D - (double)this.yOffset);
              int l = MathHelper.floor_double(this.posZ);
-@@ -1065,7 +1218,7 @@
+@@ -1065,7 +1220,7 @@
          {
              int i = 25 - this.getTotalArmorValue();
              float f1 = p_70655_2_ * (float)i;
@@ -394,7 +396,7 @@
              p_70655_2_ = f1 / 25.0F;
          }
  
-@@ -1089,7 +1242,8 @@
+@@ -1089,7 +1244,8 @@
              int j;
              float f1;
  
@@ -404,7 +406,7 @@
              {
                  i = (this.getActivePotionEffect(Potion.resistance).getAmplifier() + 1) * 5;
                  j = 25 - i;
-@@ -1122,26 +1276,218 @@
+@@ -1122,26 +1278,218 @@
          }
      }
  
@@ -634,7 +636,7 @@
      }
  
      public CombatTracker func_110142_aN()
-@@ -1558,6 +1904,7 @@
+@@ -1558,6 +1906,7 @@
      public void onUpdate()
      {
          if (ForgeHooks.onLivingUpdate(this)) return;
@@ -642,7 +644,7 @@
          super.onUpdate();
  
          if (!this.worldObj.isRemote)
-@@ -1608,7 +1955,9 @@
+@@ -1608,7 +1957,9 @@
              }
          }
  
@@ -652,7 +654,7 @@
          double d0 = this.posX - this.prevPosX;
          double d1 = this.posZ - this.prevPosZ;
          float f = (float)(d0 * d0 + d1 * d1);
-@@ -1621,7 +1970,8 @@
+@@ -1621,7 +1972,8 @@
          {
              f3 = 1.0F;
              f2 = (float)Math.sqrt((double)f) * 3.0F;
@@ -662,7 +664,7 @@
          }
  
          if (this.swingProgress > 0.0F)
-@@ -1682,6 +2032,7 @@
+@@ -1682,6 +2034,7 @@
  
          this.worldObj.theProfiler.endSection();
          this.field_70764_aw += f2;
@@ -670,7 +672,7 @@
      }
  
      protected float func_110146_f(float p_110146_1_, float p_110146_2_)
-@@ -1757,6 +2108,7 @@
+@@ -1757,6 +2110,7 @@
              this.motionZ = 0.0D;
          }
  
@@ -678,7 +680,7 @@
          this.worldObj.theProfiler.startSection("ai");
  
          if (this.isMovementBlocked())
-@@ -1766,7 +2118,7 @@
+@@ -1766,7 +2120,7 @@
              this.moveForward = 0.0F;
              this.randomYawVelocity = 0.0F;
          }
@@ -687,7 +689,7 @@
          {
              if (this.isAIEnabled())
              {
-@@ -1783,6 +2135,7 @@
+@@ -1783,6 +2137,7 @@
              }
          }
  
@@ -695,7 +697,7 @@
          this.worldObj.theProfiler.endSection();
          this.worldObj.theProfiler.startSection("jump");
  
-@@ -1811,13 +2164,17 @@
+@@ -1811,13 +2166,17 @@
          this.moveStrafing *= 0.98F;
          this.moveForward *= 0.98F;
          this.randomYawVelocity *= 0.9F;
@@ -713,7 +715,7 @@
          }
  
          this.worldObj.theProfiler.endSection();
-@@ -1829,17 +2186,36 @@
+@@ -1829,17 +2188,36 @@
      {
          List list = this.worldObj.getEntitiesWithinAABBExcludingEntity(this, this.boundingBox.expand(0.20000000298023224D, 0.0D, 0.20000000298023224D));
  
