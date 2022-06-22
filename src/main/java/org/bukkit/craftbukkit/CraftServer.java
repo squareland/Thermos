@@ -1785,6 +1785,11 @@ public final class CraftServer implements Server {
         return console.func_143007_ar();
     }
 
+	@Override
+	public boolean isStopping() {
+		return !net.minecraft.server.MinecraftServer.getServer().isServerRunning();
+	}
+
     @Deprecated
     @Override
     public UnsafeValues getUnsafe() {
