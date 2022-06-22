@@ -5,11 +5,11 @@
  import net.minecraft.world.WorldServer;
  import net.minecraftforge.common.ForgeHooks;
 +import net.minecraftforge.common.ISpecialArmor.ArmorProperties;
- 
++import thermos.VoidFlame;
 +// CraftBukkit start
 +import net.minecraft.nbt.NBTTagInt;
 +import net.minecraft.network.play.server.S28PacketEffect;
-+
+ 
 +import org.bukkit.craftbukkit.event.CraftEventFactory;
 +import org.bukkit.event.entity.EntityDamageEvent;
 +import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
@@ -685,7 +685,7 @@
              this.randomYawVelocity = 0.0F;
          }
 -        else if (this.isClientWorld())
-+        else if (this.isClientWorld() && !disableAI)
++        else if (this.isClientWorld() && !disableAI && !VoidFlame.disableEntityAI)
          {
              if (this.isAIEnabled())
              {
