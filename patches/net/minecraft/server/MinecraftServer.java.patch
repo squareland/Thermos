@@ -489,7 +489,7 @@
      public void run()
      {
          try
-@@ -392,45 +658,67 @@
+@@ -392,45 +658,68 @@
                  this.field_147147_p.func_151315_a(new ChatComponentText(this.motd));
                  this.field_147147_p.func_151321_a(new ServerStatusResponse.MinecraftProtocolVersionIdentifier("1.7.10", 5));
                  this.func_147138_a(this.field_147147_p);
@@ -516,6 +516,7 @@
 +                Class.forName(Java15Compat.class.getName());
 +                Class.forName(BlockCommandSender.class.getName());
 +                Class.forName(FakePlayerFactory.class.getName());
++                Class.forName(CraftScheduler.class.getName());
 +                if (Bukkit.getPluginManager().getPlugins().length > 0) {
 +                    new CraftScheduler().cancelTasks(Bukkit.getPluginManager().getPlugins()[0]);
 +                }
@@ -582,7 +583,7 @@
                  FMLCommonHandler.instance().handleServerStopping();
                  FMLCommonHandler.instance().expectServerStopped(); // has to come before finalTick to avoid race conditions
              }
-@@ -448,6 +736,14 @@
+@@ -448,6 +737,14 @@
          catch (Throwable throwable1)
          {
              logger.error("Encountered an unexpected exception", throwable1);
@@ -597,7 +598,7 @@
              CrashReport crashreport = null;
  
              if (throwable1 instanceof ReportedException)
-@@ -477,6 +773,7 @@
+@@ -477,6 +774,7 @@
          {
              try
              {
@@ -605,7 +606,7 @@
                  this.stopServer();
                  this.serverStopped = true;
              }
-@@ -486,6 +783,16 @@
+@@ -486,6 +784,16 @@
              }
              finally
              {
@@ -622,7 +623,7 @@
                  FMLCommonHandler.instance().handleServerStopped();
                  this.serverStopped = true;
                  this.systemExitNow();
-@@ -497,6 +804,11 @@
+@@ -497,6 +805,11 @@
      {
          File file1 = this.getFile("server-icon.png");
  
@@ -634,7 +635,7 @@
          if (file1.isFile())
          {
              ByteBuf bytebuf = Unpooled.buffer();
-@@ -532,8 +844,12 @@
+@@ -532,8 +845,12 @@
  
      public void tick()
      {
@@ -647,7 +648,7 @@
          ++this.tickCounter;
  
          if (this.startProfiling)
-@@ -562,12 +878,21 @@
+@@ -562,12 +879,21 @@
              this.field_147147_p.func_151318_b().func_151330_a(agameprofile);
          }
  
@@ -671,7 +672,7 @@
          }
  
          this.theProfiler.startSection("tallying");
-@@ -575,25 +900,57 @@
+@@ -575,25 +901,57 @@
          this.theProfiler.endSection();
          this.theProfiler.startSection("snooper");
  
@@ -731,7 +732,7 @@
          int i;
  
          Integer[] ids = DimensionManager.getIDs(this.tickCounter % 200 == 0);
-@@ -602,19 +959,21 @@
+@@ -602,19 +960,21 @@
              int id = ids[x];
              long j = System.nanoTime();
  
@@ -756,7 +757,7 @@
  
                  this.theProfiler.startSection("tick");
                  FMLCommonHandler.instance().onPreWorldTick(worldserver);
-@@ -622,22 +981,46 @@
+@@ -622,22 +982,46 @@
  
                  try
                  {
@@ -805,7 +806,7 @@
                      worldserver.addWorldInfoToCrashReport(crashreport);
                      throw new ReportedException(crashreport);
                  }
-@@ -645,10 +1028,12 @@
+@@ -645,10 +1029,12 @@
                  FMLCommonHandler.instance().onPostWorldTick(worldserver);
                  this.theProfiler.endSection();
                  this.theProfiler.startSection("tracker");
@@ -819,7 +820,7 @@
  
              worldTickTimes.get(id)[this.tickCounter % 100] = System.nanoTime() - j;
          }
-@@ -656,15 +1041,21 @@
+@@ -656,15 +1042,21 @@
          this.theProfiler.endStartSection("dim_unloading");
          DimensionManager.unloadWorlds(worldTickTimes);
          this.theProfiler.endStartSection("connection");
@@ -841,7 +842,7 @@
  
          this.theProfiler.endSection();
      }
-@@ -699,6 +1090,13 @@
+@@ -699,6 +1091,13 @@
  
      public WorldServer worldServerForDimension(int p_71218_1_)
      {
@@ -855,7 +856,7 @@
          WorldServer ret = DimensionManager.getWorld(p_71218_1_);
          if (ret == null)
          {
-@@ -784,13 +1182,14 @@
+@@ -784,13 +1183,14 @@
  
      public List getPossibleCompletions(ICommandSender p_71248_1_, String p_71248_2_)
      {
@@ -874,7 +875,7 @@
  
              if (list != null)
              {
-@@ -798,40 +1197,25 @@
+@@ -798,40 +1198,25 @@
  
                  while (iterator.hasNext())
                  {
@@ -923,7 +924,7 @@
      }
  
      public static MinecraftServer getServer()
-@@ -1034,7 +1418,7 @@
+@@ -1034,7 +1419,7 @@
  
      public boolean isServerInOnlineMode()
      {
@@ -932,7 +933,7 @@
      }
  
      public void setOnlineMode(boolean p_71229_1_)
-@@ -1124,7 +1508,7 @@
+@@ -1124,7 +1509,7 @@
  
      public NetworkSystem func_147137_ag()
      {
@@ -941,7 +942,7 @@
      }
  
      @SideOnly(Side.CLIENT)
-@@ -1259,8 +1643,11 @@
+@@ -1259,8 +1644,11 @@
      {
          Bootstrap.func_151354_b();
  
@@ -953,7 +954,7 @@
              boolean flag = true;
              String s = null;
              String s1 = ".";
-@@ -1356,16 +1743,34 @@
+@@ -1356,16 +1744,34 @@
              {
                  dedicatedserver.setGuiEnabled();
              }
@@ -994,7 +995,7 @@
          }
          catch (Exception exception)
          {
-@@ -1400,15 +1805,70 @@
+@@ -1400,15 +1806,70 @@
      @SideOnly(Side.SERVER)
      public String getPlugins()
      {
@@ -1070,7 +1071,7 @@
      }
  
      @SideOnly(Side.SERVER)
-@@ -1455,9 +1915,213 @@
+@@ -1455,9 +1916,213 @@
          return this.serverStopped;
      }
  
