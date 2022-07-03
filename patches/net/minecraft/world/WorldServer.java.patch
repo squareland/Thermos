@@ -554,7 +554,7 @@
 -        this.theChunkProviderServer = new ChunkProviderServer(this, ichunkloader, this.provider.createChunkGenerator());
 +        if (this.generator != null)
 +        {
-+            this.theChunkProviderServer = new ChunkProviderServer(this, ichunkloader, new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, this.getSeed(), this.generator));
++            this.theChunkProviderServer = new ChunkProviderServer(this, ichunkloader, new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, this.getSeed(), this.generator)); //VoidFlame
 +        }
 +
 +        // Cauldron start - if provider is vanilla, proceed to create a bukkit compatible chunk generator
