@@ -4,8 +4,8 @@
       */
      public String getSaveFolder()
      {
-+        if (worldObj != null && worldObj.getWorldInfo().getWorldName().equalsIgnoreCase("Spawn")) {
-+            return "Spawn"; // VoidFlame
++        if (worldObj != null && DimensionManager.isBukkitDimension(dimensionId)) {
++            return worldObj.getWorldInfo().getWorldName(); // VoidFlame
 +        }
          return (dimensionId == 0 ? null : "DIM" + dimensionId);
      }
