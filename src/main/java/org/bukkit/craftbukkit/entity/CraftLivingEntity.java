@@ -170,28 +170,34 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
         return blocks;
     }
 
+    @Override
     public List<Block> getLineOfSight(HashSet<Byte> transparent, int maxDistance) {
         return getLineOfSight(transparent, maxDistance, 0);
     }
 
+    @Override
     public List<Block> getLineOfSight(Set<Material> transparent, int maxDistance) { //VoidFlame
         return getLineOfSight(transparent, maxDistance, 0);
     }
 
+    @Override
     public Block getTargetBlock(HashSet<Byte> transparent, int maxDistance) {
         List<Block> blocks = getLineOfSight(transparent, maxDistance, 1);
         return blocks.get(0);
     }
 
+    @Override
     public Block getTargetBlock(Set<Material> transparent, int maxDistance) { //VoidFlame
         List<Block> blocks = getLineOfSight(transparent, maxDistance, 1);
         return blocks.get(0);
     }
 
+    @Override
     public List<Block> getLastTwoTargetBlocks(HashSet<Byte> transparent, int maxDistance) {
         return getLineOfSight(transparent, maxDistance, 2);
     }
 
+    @Override
     public List<Block> getLastTwoTargetBlocks(Set<Material> transparent, int maxDistance) { //VoidFlame
         return getLineOfSight(transparent, maxDistance, 2);
     }
