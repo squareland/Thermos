@@ -34,6 +34,11 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
         this.server = server;
         this.entity = entity;
     }
+    
+    @Override
+    public boolean isCustomNameVisible() {
+        return false; // VoidFlame
+    }
 
     public static CraftEntity getEntity(CraftServer server, net.minecraft.entity.Entity entity) {
         /**

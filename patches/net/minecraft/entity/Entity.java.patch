@@ -757,6 +757,7 @@
 +            // CraftBukkit end
 +            this.dimension = i;
              this.worldObj.removeEntity(this);
+-            this.isDead = false;
 +            // Thermos silently remove the entity so it can be magically transported to another world :D    
 +            if (!(this instanceof EntityLivingBase) && this.addedToChunk && this.worldObj.chunkExists(this.chunkCoordX, this.chunkCoordZ))
 +            {
@@ -764,7 +765,7 @@
 +            	this.worldObj.loadedEntityList.remove(this);
 +            }
 +                
-             this.isDead = false;
++//            this.isDead = false; // VoidFlame - Donkey portal dupe fix https://github.com/PaperMC/Paper/blob/08aa6e5f49c9ceee3290bbe457998c0030d8ca7d/Spigot-Server-Patches/0213-Fix-a-duplicate-alive-entity-on-second-world.patch
              this.worldObj.theProfiler.startSection("reposition");
 -            minecraftserver.getConfigurationManager().transferEntityToWorld(this, j, worldserver, worldserver1);
 +            // CraftBukkit start - Ensure chunks are loaded in case TravelAgent is not used which would initially cause chunks to load during find/create

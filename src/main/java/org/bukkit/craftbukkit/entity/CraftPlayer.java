@@ -1316,6 +1316,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     // Spigot start
     private final Player.Spigot spigot = new Player.Spigot()
     {
+
+		//VoidFlame (Paper)
+		@Override
+		public int getPing() {
+			return getHandle().ping;
+		}
+		//End VoidFlame
+
         @Override
         public InetSocketAddress getRawAddress()
         {

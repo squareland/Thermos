@@ -1,0 +1,19 @@
+--- ../src-base/minecraft/cpw/mods/fml/common/patcher/ClassPatchManager.java
++++ ../src-work/minecraft/cpw/mods/fml/common/patcher/ClassPatchManager.java
+@@ -128,11 +128,15 @@
+         {
+             FMLRelaunchLog.fine("Successfully applied runtime patches for %s (new size %d)", mappedName, inputData.length);
+         }
++
+         if (dumpPatched)
+         {
+             try
+             {
+-                Files.write(inputData, new File(tempDir,mappedName));
++                FMLRelaunchLog.info("Writing %s to %s", mappedName, tempDir.getAbsolutePath());
++                File file = new File(tempDir, mappedName + ".class");
++                Files.createParentDirs(file);
++                Files.write(inputData, file);
+             }
+             catch (IOException e)
+             {

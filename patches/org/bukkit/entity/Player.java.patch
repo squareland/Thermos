@@ -23,7 +23,7 @@
  import org.bukkit.map.MapView;
  import org.bukkit.plugin.messaging.PluginMessageRecipient;
  import org.bukkit.scoreboard.Scoreboard;
-@@ -1035,4 +1027,88 @@
+@@ -1035,4 +1027,94 @@
       * @see Player#setHealthScaled(boolean)
       */
      public double getHealthScale();
@@ -31,6 +31,12 @@
 +    // Spigot start
 +    public class Spigot extends Entity.Spigot
 +    {
++
++		//VoidFlame (Paper)
++		public int getPing() {
++			throw new UnsupportedOperationException("Not supported yet.");
++		}
++		//End VoidFlame
 +
 +        /**
 +         * Gets the connection address of this player, regardless of whether it

@@ -1,0 +1,10 @@
+--- ../src-base/minecraft/net/minecraft/world/GameRules.java
++++ ../src-work/minecraft/net/minecraft/world/GameRules.java
+@@ -21,6 +21,7 @@
+         this.addGameRule("commandBlockOutput", "true");
+         this.addGameRule("naturalRegeneration", "true");
+         this.addGameRule("doDaylightCycle", "true");
++        this.addGameRule("doWeatherCycle", "true");
+     }
+ 
+     public void addGameRule(String p_82769_1_, String p_82769_2_)

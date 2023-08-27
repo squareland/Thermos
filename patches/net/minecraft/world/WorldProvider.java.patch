@@ -1,0 +1,12 @@
+--- ../src-base/minecraft/net/minecraft/world/WorldProvider.java
++++ ../src-work/minecraft/net/minecraft/world/WorldProvider.java
+@@ -225,6 +225,9 @@
+      */
+     public String getSaveFolder()
+     {
++        if (worldObj != null && DimensionManager.isBukkitDimension(dimensionId)) {
++            return worldObj.getWorldInfo().getWorldName(); // VoidFlame
++        }
+         return (dimensionId == 0 ? null : "DIM" + dimensionId);
+     }
+ 

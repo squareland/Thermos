@@ -1,0 +1,54 @@
+--- ../src-base/minecraft/cpw/mods/fml/common/network/simpleimpl/SimpleChannelHandlerWrapper.java
++++ ../src-work/minecraft/cpw/mods/fml/common/network/simpleimpl/SimpleChannelHandlerWrapper.java
+@@ -2,6 +2,7 @@
+ 
+ import org.apache.logging.log4j.Level;
+ 
++import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.network.INetHandler;
+ 
+ import com.google.common.base.Preconditions;
+@@ -15,20 +16,22 @@
+ import io.netty.channel.SimpleChannelInboundHandler;
+ 
+ public class SimpleChannelHandlerWrapper<REQ extends IMessage, REPLY extends IMessage> extends SimpleChannelInboundHandler<REQ> {
+-    private final IMessageHandler<? super REQ, ? extends REPLY> messageHandler;
++
++	private final IMessageHandler<? super REQ, ? extends REPLY> messageHandler;
+     private final Side side;
+-    
++
+     public SimpleChannelHandlerWrapper(Class<? extends IMessageHandler<? super REQ, ? extends REPLY>> handler, Side side, Class<REQ> requestType)
+     {
+         this(SimpleNetworkWrapper.instantiate(handler), side, requestType);
+     }
+-    
++
+     public SimpleChannelHandlerWrapper(IMessageHandler<? super REQ, ? extends REPLY> handler, Side side, Class<REQ> requestType)
+     {
+         super(requestType);
+         messageHandler = Preconditions.checkNotNull(handler, "IMessageHandler must not be null");
+         this.side = side;
+     }
++
+     @Override
+     protected void channelRead0(ChannelHandlerContext ctx, REQ msg) throws Exception
+     {
+@@ -45,7 +48,16 @@
+     @Override
+     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
+     {
+-        FMLLog.log(Level.ERROR, cause, "SimpleChannelHandlerWrapper exception");
++        Object target = ctx.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).get();
++        if (target instanceof EntityPlayerMP) 
++        {
++            EntityPlayerMP player = (EntityPlayerMP) target;
++            FMLLog.log(Level.ERROR, cause, "SimpleChannelHandlerWrapper exception sending packet to " + player.getCommandSenderName(), new Object[0]);
++        }
++        else {
++            FMLLog.log(Level.ERROR, cause, "SimpleChannelHandlerWrapper exception");
++        }
+         super.exceptionCaught(ctx, cause);
+     }
++
+ }

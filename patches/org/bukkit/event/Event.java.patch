@@ -1,0 +1,23 @@
+--- ../src-base/minecraft/org/bukkit/event/Event.java
++++ ../src-work/minecraft/org/bukkit/event/Event.java
+@@ -31,6 +31,20 @@
+         this.async = isAsync;
+     }
+ 
++	/**
++	 * Calls the event and tests if cancelled.
++	 *
++	 * @return false if event was cancelled, if cancellable. otherwise true.
++	 */
++	public boolean callEvent() { //VoidFlame
++		org.bukkit.Bukkit.getPluginManager().callEvent(this);
++		if (this instanceof Cancellable) {
++			return !((Cancellable) this).isCancelled();
++		} else {
++			return true;
++		}
++	}
++
+     /**
+      * Convenience method for providing a user-friendly identifier. By
+      * default, it is the event's class's {@linkplain Class#getSimpleName()

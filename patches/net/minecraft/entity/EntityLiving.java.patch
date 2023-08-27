@@ -1,6 +1,11 @@
 --- ../src-base/minecraft/net/minecraft/entity/EntityLiving.java
 +++ ../src-work/minecraft/net/minecraft/entity/EntityLiving.java
-@@ -38,6 +38,13 @@
+@@ -34,10 +34,18 @@
+ import net.minecraft.world.EnumDifficulty;
+ import net.minecraft.world.World;
+ import net.minecraft.world.WorldServer;
++import net.minecraft.world.storage.WorldInfo;
+ import net.minecraftforge.common.ForgeHooks;
  import cpw.mods.fml.common.eventhandler.Event.Result;
  import net.minecraftforge.event.ForgeEventFactory;
  
@@ -14,7 +19,7 @@
  public abstract class EntityLiving extends EntityLivingBase
  {
      public int livingSoundTime;
-@@ -52,9 +59,9 @@
+@@ -52,9 +60,9 @@
      private EntityLivingBase attackTarget;
      private EntitySenses senses;
      private ItemStack[] equipment = new ItemStack[5];
@@ -27,7 +32,7 @@
      protected float defaultPitch;
      private Entity currentTarget;
      protected int numTicksToChaseTarget;
-@@ -311,9 +318,23 @@
+@@ -311,9 +319,23 @@
      public void readEntityFromNBT(NBTTagCompound p_70037_1_)
      {
          super.readEntityFromNBT(p_70037_1_);
@@ -53,13 +58,12 @@
          if (p_70037_1_.hasKey("CustomName", 8) && p_70037_1_.getString("CustomName").length() > 0)
          {
              this.setCustomNameTag(p_70037_1_.getString("CustomName"));
-@@ -521,15 +542,36 @@
+@@ -521,15 +543,35 @@
                      this.entityAge = 0;
                  }
              }
 +            // Cauldron start - Force despawn of entity if a player isn't near
-+            else if (this.worldObj.cauldronConfig.entityDespawnImmediate && this.canDespawn())
-+            {
++            else if ((this.worldObj.cauldronConfig == null || this.worldObj.cauldronConfig.entityDespawnImmediate) && this.canDespawn()) { //VoidFlame - Server NPE crash fix (TODO: Figure out why cauldronConfig is sometimes null. It was happening for the Nether)
 +                this.despawn("No Player : Immediate");
 +            }
 +            // Cauldron end

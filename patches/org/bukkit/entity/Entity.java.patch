@@ -1,6 +1,25 @@
 --- ../src-base/minecraft/org/bukkit/entity/Entity.java
 +++ ../src-work/minecraft/org/bukkit/entity/Entity.java
-@@ -291,4 +291,22 @@
+@@ -283,12 +283,41 @@
+      * @return True if the entity was in a vehicle.
+      */
+     public boolean leaveVehicle();
++    
+ 
+     /**
++     * Gets whether or not the mob's custom name is displayed client side.
++     * <p>
++     * This value has no effect on players, they will always display their
++     * name.
++     *
++     * @return if the custom name is displayed
++     */
++    public boolean isCustomNameVisible(); //VoidFlame
++
++    /**
+      * Get the vehicle that this player is inside. If there is no vehicle,
+      * null will be returned.
+      *
       * @return The current vehicle.
       */
      public Entity getVehicle();

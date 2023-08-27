@@ -79,6 +79,7 @@ import org.bukkit.craftbukkit.util.Versioning;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerChatTabCompleteEvent;
+import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
@@ -160,7 +161,7 @@ public final class CraftServer implements Server {
     public YamlConfiguration configuration = MinecraftServer.configuration; // Cauldron
     private YamlConfiguration commandsConfiguration = MinecraftServer.commandsConfiguration; // Cauldron
     private final Yaml yaml = new Yaml(new SafeConstructor());
-    private final Map<UUID, OfflinePlayer> offlinePlayers = new MapMaker().softValues().makeMap();
+    private final Map<UUID, OfflinePlayer> offlinePlayers = new MapMaker().weakValues().makeMap();
     private final AutoUpdater updater;
     private final EntityMetadataStore entityMetadata = new EntityMetadataStore();
     private final PlayerMetadataStore playerMetadata = new PlayerMetadataStore();
@@ -1646,12 +1647,18 @@ public final class CraftServer implements Server {
             return ImmutableList.of();
         }
 
+        List<String> offers;
         Player player = ((net.minecraft.entity.player.EntityPlayerMP) sender).getBukkitEntity();
         if (message.startsWith("/")) {
-            return tabCompleteCommand(player, message);
+            offers = tabCompleteCommand(player, message);
         } else {
-            return tabCompleteChat(player, message);
+            offers = tabCompleteChat(player, message);
         }
+
+        TabCompleteEvent tabEvent = new TabCompleteEvent(player, message, offers);
+        getPluginManager().callEvent(tabEvent);
+
+        return tabEvent.isCancelled() ? Collections.EMPTY_LIST : tabEvent.getCompletions();
     }
 
     public List<String> tabCompleteCommand(Player player, String message) {
@@ -1777,6 +1784,11 @@ public final class CraftServer implements Server {
     public int getIdleTimeout() {
         return console.func_143007_ar();
     }
+
+	@Override
+	public boolean isStopping() {
+		return !net.minecraft.server.MinecraftServer.getServer().isServerRunning();
+	}
 
     @Deprecated
     @Override
